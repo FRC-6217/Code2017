@@ -1,6 +1,4 @@
-//!!! GARBAGE PROGAMMING ALERT !!!
-//EVAN DOES NOT TAKE ANY RESPONABILITY FOR ANY MENTAL DAMAGES THAT MAY OCCUR
-#define _GLIBCXX_USE_CXX11_ABI 0
+//#define _GLIBCXX_USE_CXX11_ABI 0
 //Include needed libraries
 #include <iostream>
 #include <memory>
@@ -15,8 +13,8 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp>
-#include "PIDNumSource.h"
-#include "PIDNumOutput.h"
+//#include "PIDNumSource.h"
+//#include "PIDNumOutput.h"
 
 //Be able to use functions from Autonomous.cpp
 #include "Autonomous.h"
@@ -37,7 +35,6 @@
 
 //Start the class definition
 class Robot: public frc::IterativeRobot {
-
     //Declare the used variables
     frc::Joystick* joystick;
     frc::RobotDrive* robotDrive;
@@ -86,12 +83,12 @@ class Robot: public frc::IterativeRobot {
     //It just means they can be accessed from VisionThread.
     static bool actuate;
     static int movement;
-    static bool cameraToggle;
-    static PIDNumSource* visionSource;
+    //static bool cameraToggle;
+    //static PIDNumSource* visionSource;
 
     //More PID stuff (Proportion, Integral, Derivative)
-    PIDNumOutput* visionOutput;
-    frc::PIDController* visionControl;
+    //PIDNumOutput* visionOutput;
+    //frc::PIDController* visionControl;
 
     //variable for vision processing.
     static double values[6];
@@ -109,9 +106,9 @@ class Robot: public frc::IterativeRobot {
         frc::SmartDashboard::PutNumber("V_High",0.0);
 
         //Set up the PID loop
-        visionOutput = new PIDNumOutput();
-        visionControl = new frc::PIDController(-0.004, -0.00005, 0.0, visionSource, visionOutput);
-        visionControl->SetInputRange(-0.3,0.3);
+        //visionOutput = new PIDNumOutput();
+        //visionControl = new frc::PIDController(-0.004, -0.00005, 0.0, visionSource, visionOutput);
+        //visionControl->SetInputRange(-0.3,0.3);
 
 
         //template is broken, need to use pointers
@@ -156,8 +153,8 @@ class Robot: public frc::IterativeRobot {
         //serial = new frc::SerialPort(9600, frc::SerialPort::kUSB1);
 
         //Start the visionThread function in a different thread.
-        std::thread visionThread(VisionThread);
-        visionThread.detach();
+        //std::thread visionThread(VisionThread);
+        //visionThread.detach();
 
         //create objects for the sensors.
         ultrasonic = new frc::AnalogInput(2);
@@ -187,6 +184,7 @@ class Robot: public frc::IterativeRobot {
         //The power of the shooter.
         shooterPower = 0.6;
 
+
         //Used for ball autonomous program, to tell what to do next.
         ballNext = 0;
 
@@ -206,7 +204,7 @@ class Robot: public frc::IterativeRobot {
         robotDrive->SetMaxOutput(1.0);
 
         //Turn on the PID loop
-        visionControl->Enable();
+        //visionControl->Enable();
 
         //Reset the sensors
         gyro->Reset();
@@ -216,7 +214,7 @@ class Robot: public frc::IterativeRobot {
         Autonomous::autoState = 0;
 
         //Make sure to enable the front camera
-        cameraToggle = true;
+        //cameraToggle = true;
 
         //Set the lights
         arduino[0]->Set(false);
@@ -227,7 +225,7 @@ class Robot: public frc::IterativeRobot {
     //This function is called every ~20ms during auto mode.
     void AutonomousPeriodic() {
     	//Set the desired position of the PID loop to be 0
-        visionControl->SetSetpoint(0.0);
+        //visionControl->SetSetpoint(0.0);
 
         //always stop the winch.
         //EVERY MOTOR MUST BE SET EVERY LOOP. MAKE SURE THIS IS DONE.
@@ -248,11 +246,11 @@ class Robot: public frc::IterativeRobot {
         frc::SmartDashboard::PutNumber("Ultrasonic", distance);
         frc::SmartDashboard::PutNumber("Gyro", gyro->GetAngle());
         frc::SmartDashboard::PutNumber("Encoder", enc->GetDistance());
-        frc::SmartDashboard::PutNumber("PID", visionOutput->getValue());
+        //frc::SmartDashboard::PutNumber("PID", visionOutput->getValue());
 
         //Transfer the distance and PID output to the auto functions
         Autonomous::distance = distance;
-        Autonomous::movement = visionOutput->getValue();
+        //Autonomous::movement = visionOutput->getValue();
 
         //Get the selected auto program from the dashboard
         const int result = *autoChooser->GetSelected();
@@ -281,7 +279,7 @@ class Robot: public frc::IterativeRobot {
     //This function is called at the beginning of teleop mode.
     void TeleopInit() {
     	//Stop the PID loop, so it doesn't keep calculation.
-        visionControl->Disable();
+        //visionControl->Disable();
 
         //Count isn't even used anymore. Ignore it.
         count = 0;
@@ -293,20 +291,20 @@ class Robot: public frc::IterativeRobot {
     }
 
     void TeleopPeriodic() {
-        visionControl->SetSetpoint(0.0);
+        //visionControl->SetSetpoint(0.0);
 
         //Put data on the smart dashboard
         frc::SmartDashboard::PutNumber("Gyro", gyro->GetAngle());
         frc::SmartDashboard::PutNumber("Encoder", enc->GetDistance());
         frc::SmartDashboard::PutNumber("Shooter Power", shooterPower);
-        frc::SmartDashboard::PutNumber("PID", visionOutput->getValue());
+        //frc::SmartDashboard::PutNumber("PID", visionOutput->getValue());
 
         //Scale the speed to the throttle on the joystick.
         robotDrive->SetMaxOutput((joystick->GetRawAxis(3) - 1)/-2); //scale speed
 
         //Update the vision value from the PID loop.
-        Autonomous::movement = visionOutput->getValue();
-        printf("vision: %f\n", visionOutput->getValue());
+        //Autonomous::movement = visionOutput->getValue();
+        //printf("vision: %f\n", visionOutput->getValue());
 
         //printf("Distance: %i\n", limitSwitch->Get());
 
@@ -320,12 +318,12 @@ class Robot: public frc::IterativeRobot {
             if (!lockRot) {
                 lockRot = true;
                 angleOffset = gyro->GetAngle() * -1;
-                visionControl->Enable();
+                //visionControl->Enable();
             }
             robotDrive->MecanumDrive_Cartesian(Autonomous::movement, y, KP_GYRO * (gyro->GetAngle() + angleOffset));
 
             //Set the lights
-            if (visionControl->GetError() < 3) {
+            /*if (visionControl->GetError() < 3) {
                 arduino[0]->Set(false);
                 arduino[1]->Set(true);
                 arduino[2]->Set(false);
@@ -333,13 +331,13 @@ class Robot: public frc::IterativeRobot {
                 arduino[0]->Set(false);
                 arduino[1]->Set(true);
                 arduino[2]->Set(true);
-            }
+            }*/
         } else {
         	//set lights
             arduino[0]->Set(false);
             arduino[1]->Set(true);
             arduino[2]->Set(true);
-            visionControl->Disable();
+            //visionControl->Disable();
             lockRot = false;
 
             //Normal driving
@@ -359,7 +357,7 @@ class Robot: public frc::IterativeRobot {
 
         //toggle camera (start on xbox)
         if (xboxjoystick->GetRawButton(8) && debounce) {
-            cameraToggle = !cameraToggle;
+            //cameraToggle = !cameraToggle;
             debounce = false;
         } else if (xboxjoystick->GetRawButton(8) == false) {
             debounce = true;
@@ -466,7 +464,7 @@ class Robot: public frc::IterativeRobot {
     }
 
     //This function runs in a separate thread. It processes the camera input.
-    static void VisionThread()
+    /*static void VisionThread()
     {
         //Set up the camera
         int g_exp = 50;
@@ -606,14 +604,14 @@ class Robot: public frc::IterativeRobot {
             //Send to driver station
             outputStreamStd.PutFrame(source);
         }
-    }
+    }*/
 };
 
 //Static variables must be defined outside the class.
 bool Robot::actuate = false;
 int Robot::movement = 0;
-bool Robot::cameraToggle = true;
-PIDNumSource* Robot::visionSource = new PIDNumSource(0.0);
+//bool Robot::cameraToggle = true;
+//PIDNumSource* Robot::visionSource = new PIDNumSource(0.0);
 double Robot::values[6] = {0.0,0.0,0.0,0.0,0.0,0.0};
 
 //This macro is part of the library, and does all the stuff to set up all the stuff. Needs to be there.
